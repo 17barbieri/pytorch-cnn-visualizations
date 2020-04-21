@@ -3,6 +3,7 @@ Created on Thu Oct 26 11:06:51 2017
 
 @author: Utku Ozbulak - github.com/utkuozbulak
 """
+import os
 from PIL import Image
 import numpy as np
 import torch
@@ -101,14 +102,24 @@ class GradCam():
 
 
 if __name__ == '__main__':
-    # Get params
-    target_example = 0  # Snake
-    (original_image, prep_img, target_class, file_name_to_export, pretrained_model) =\
-        get_example_params(target_example)
-    # Grad cam
-    grad_cam = GradCam(pretrained_model, target_layer=11)
-    # Generate cam mask
-    cam = grad_cam.generate_cam(prep_img, target_class)
-    # Save mask
-    save_class_activation_images(original_image, cam, file_name_to_export)
-    print('Grad cam completed')
+    
+    path = os.path.abspath(os.path.join(os.path.curdir, os.pardir))
+    path = os.path.join(path, 'kidney_test_images')
+
+    for cnn_layer in range(8):
+        print('cnn_layer = ' + str(cnn_layer))
+        for target_class in os.listdir(path):
+            class_path = os.path.join(path, target_class)
+            for img in os.listdir(class_path):
+                img_path = os.path.join(class_path, img)
+
+                (original_image, prep_img, file_name_to_export, pretrained_model) =\
+                    get_example_params(img_path)
+                file_name_to_export =  'layer_' + str(cnn_layer) + '_class_' + str(target_class) + '_' + file_name_to_export
+                # Grad cam
+                grad_cam = GradCam(pretrained_model, target_layer=cnn_layer)
+                # Generate cam mask
+                cam = grad_cam.generate_cam(prep_img, int(target_class))
+                # Save mask
+                save_class_activation_images(original_image, cam, file_name_to_export)
+                print('Grad cam completed')

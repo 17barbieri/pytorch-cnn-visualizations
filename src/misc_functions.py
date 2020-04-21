@@ -5,6 +5,7 @@ Created on Thu Oct 21 11:09:09 2017
 """
 import os
 import copy
+import pdb
 import numpy as np
 from PIL import Image, ImageFilter
 import matplotlib.cm as mpl_color_map
@@ -215,7 +216,7 @@ def get_positive_negative_saliency(gradient):
     return pos_saliency, neg_saliency
 
 
-def get_example_params(example_index):
+def get_example_params(img_path):
     """
         Gets used variables for almost all visualizations, like the image, model etc.
 
@@ -229,21 +230,16 @@ def get_example_params(example_index):
         file_name_to_export (string): File name to export the visualizations
         pretrained_model(Pytorch model): Model to use for the operations
     """
-    # Pick one of the examples
-    example_list = (('../input_images/snake.jpg', 56),
-                    ('../input_images/cat_dog.png', 243),
-                    ('../input_images/spider.png', 72))
-    img_path = example_list[example_index][0]
-    target_class = example_list[example_index][1]
+
+    #target_class = class_label
     file_name_to_export = img_path[img_path.rfind('/')+1:img_path.rfind('.')]
     # Read image
-    original_image = Image.open(img_path).convert('RGB')
+    original_image = Image.open(img_path).resize((224,224)).convert('RGB')
     # Process image
     prep_img = preprocess_image(original_image)
     # Define model
     pretrained_model = models.alexnet(pretrained=True)
     return (original_image,
             prep_img,
-            target_class,
             file_name_to_export,
             pretrained_model)
